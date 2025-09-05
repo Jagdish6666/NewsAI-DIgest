@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -27,7 +27,14 @@ export function ArticleCard({ article, summaryLength }: ArticleCardProps) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [formattedDate, setFormattedDate] = useState("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (article.pubDate) {
+      setFormattedDate(formatDistanceToNow(new Date(article.pubDate), { addSuffix: true }));
+    }
+  }, [article.pubDate]);
 
   const handleSummarize = async () => {
     setIsLoading(true);
@@ -48,8 +55,6 @@ export function ArticleCard({ article, summaryLength }: ArticleCardProps) {
       setIsLoading(false);
     }
   };
-  
-  const formattedDate = article.pubDate ? formatDistanceToNow(new Date(article.pubDate), { addSuffix: true }) : '';
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-md">
