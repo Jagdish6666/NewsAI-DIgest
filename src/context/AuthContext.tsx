@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, signInWithPopup, signInWithEmailAndPassword, signOut as firebaseSignOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, User } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -75,7 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       // In a real app, you would use firebaseSignOut(auth);
       router.push('/login');
-    } catch (error) {
+    } catch (error)
+    {
       console.error("Error signing out: ", error);
     } finally {
         setLoading(false);
