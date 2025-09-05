@@ -8,8 +8,17 @@ import { FeedControls } from '@/components/FeedControls';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Rss } from 'lucide-react';
+import type { PresetFeed } from '@/components/PresetFeeds';
 
-const DEFAULT_FEED_URL = 'https://news.ycombinator.com/rss';
+const PRESET_FEEDS: PresetFeed[] = [
+  { name: 'Hacker News', url: 'https://news.ycombinator.com/rss' },
+  { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
+  { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
+  { name: 'Wired', url: 'https://www.wired.com/feed/rss' },
+  { name: 'New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml' },
+];
+
+const DEFAULT_FEED_URL = PRESET_FEEDS[0].url;
 export type SummaryLength = 'short' | 'medium' | 'long';
 
 export default function Home() {
@@ -45,6 +54,11 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const handleSelectPreset = (url: string) => {
+    setRssUrl(url);
+    handleLoadFeed(url);
   };
 
   useEffect(() => {
@@ -93,6 +107,8 @@ export default function Home() {
             setFilterQuery={setFilterQuery}
             summaryLength={summaryLength}
             setSummaryLength={setSummaryLength}
+            presetFeeds={PRESET_FEEDS}
+            onSelectPreset={handleSelectPreset}
           />
           {isLoading ? (
             <SkeletonGrid />

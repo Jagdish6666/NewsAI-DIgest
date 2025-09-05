@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Rss, Search } from "lucide-react";
 import type { SummaryLength } from "@/app/page";
+import { PresetFeeds, type PresetFeed } from "@/components/PresetFeeds";
 
 interface FeedControlsProps {
   rssUrl: string;
@@ -16,6 +17,8 @@ interface FeedControlsProps {
   setFilterQuery: (query: string) => void;
   summaryLength: SummaryLength;
   setSummaryLength: (length: SummaryLength) => void;
+  presetFeeds: PresetFeed[];
+  onSelectPreset: (url: string) => void;
 }
 
 export function FeedControls({
@@ -27,6 +30,8 @@ export function FeedControls({
   setFilterQuery,
   summaryLength,
   setSummaryLength,
+  presetFeeds,
+  onSelectPreset,
 }: FeedControlsProps) {
   
   const handleUrlSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,8 +42,8 @@ export function FeedControls({
   return (
     <div className="container mx-auto p-4 md:p-6">
       <div className="grid gap-6 rounded-lg border bg-card p-4 shadow-sm md:p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+          <div className="space-y-2 xl:col-span-2">
             <Label htmlFor="rss-url">Custom RSS Feed</Label>
             <form onSubmit={handleUrlSubmit} className="flex gap-2">
               <div className="relative flex-grow">
@@ -46,7 +51,7 @@ export function FeedControls({
                 <Input
                   id="rss-url"
                   type="url"
-                  placeholder="https://news.ycombinator.com/rss"
+                  placeholder="Enter any RSS feed URL"
                   value={rssUrl}
                   onChange={(e) => setRssUrl(e.target.value)}
                   className="pl-10"
@@ -59,19 +64,9 @@ export function FeedControls({
               </Button>
             </form>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="filter">Filter Articles</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="filter"
-                type="text"
-                placeholder="Filter by keyword..."
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+           <div className="space-y-2">
+            <Label>Or Select a Preset</Label>
+            <PresetFeeds feeds={presetFeeds} onSelect={onSelectPreset} currentUrl={rssUrl} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="summary-length">Summary Length</Label>
@@ -85,6 +80,20 @@ export function FeedControls({
                 <SelectItem value="long">Long</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2 xl:col-span-4">
+             <Label htmlFor="filter">Filter Articles</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="filter"
+                type="text"
+                placeholder="Filter by keyword..."
+                value={filterQuery}
+                onChange={(e) => setFilterQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
         </div>
       </div>
