@@ -31,6 +31,7 @@ export function ArticleCard({ article, summaryLength }: ArticleCardProps) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // To prevent hydration mismatch, only format the date on the client
     if (article.pubDate) {
       setFormattedDate(formatDistanceToNow(new Date(article.pubDate), { addSuffix: true }));
     }
