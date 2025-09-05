@@ -30,12 +30,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const handleLoadFeed = async (url: string) => {
+  const handleLoadFeed = async (urlToLoad: string) => {
+    if (!urlToLoad) {
+      toast({
+        variant: "destructive",
+        title: "Missing URL",
+        description: "Please enter an RSS feed URL.",
+      });
+      return;
+    }
     setIsLoading(true);
     setArticles([]);
     setFilterQuery('');
     try {
-      const feedArticles = await getFeed(url);
+      const feedArticles = await getFeed(urlToLoad);
       setArticles(feedArticles);
       if (feedArticles.length === 0) {
         toast({
