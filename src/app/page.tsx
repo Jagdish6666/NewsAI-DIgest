@@ -13,6 +13,7 @@ const DEFAULT_FEED_URL = 'https://news.ycombinator.com/rss';
 export type SummaryLength = 'short' | 'medium' | 'long';
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [rssUrl, setRssUrl] = useState(DEFAULT_FEED_URL);
   const [filterQuery, setFilterQuery] = useState('');
@@ -47,6 +48,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setIsClient(true);
     handleLoadFeed(DEFAULT_FEED_URL);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -80,37 +82,41 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-grow">
-        <FeedControls
-          rssUrl={rssUrl}
-          setRssUrl={setRssUrl}
-          handleLoadFeed={() => handleLoadFeed(rssUrl)}
-          isLoading={isLoading}
-          filterQuery={filterQuery}
-          setFilterQuery={setFilterQuery}
-          summaryLength={summaryLength}
-          setSummaryLength={setSummaryLength}
-        />
-        {isLoading ? (
-          <SkeletonGrid />
-        ) : filteredArticles.length > 0 ? (
-          <div className="container mx-auto grid auto-rows-fr grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <ArticleCard
-                key={article.link}
-                article={article}
-                summaryLength={summaryLength}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="container mx-auto flex flex-col items-center justify-center gap-4 p-16 text-center text-muted-foreground">
-            <Rss className="h-16 w-16" />
-            <h2 className="text-xl font-semibold">No Articles Found</h2>
-            <p className="max-w-md">
-              Your feed is empty, or no articles matched your filter. Try loading a new feed or clearing your filter.
-            </p>
-          </div>
-        )}
+       {isClient ? (
+        <>
+          <FeedControls
+            rssUrl={rssUrl}
+            setRssUrl={setRssUrl}
+            handleLoadFeed={() => handleLoadFeed(rssUrl)}
+            isLoading={isLoading}
+            filterQuery={filterQuery}
+            setFilterQuery={setFilterQuery}
+            summaryLength={summaryLength}
+            setSummaryLength={setSummaryLength}
+          />
+          {isLoading ? (
+            <SkeletonGrid />
+          ) : filteredArticles.length > 0 ? (
+            <div className="container mx-auto grid auto-rows-fr grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
+              {filteredArticles.map((article) => (
+                <ArticleCard
+                  key={article.link}
+                  article={article}
+                  summaryLength={summaryLength}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="container mx-auto flex flex-col items-center justify-center gap-4 p-16 text-center text-muted-foreground">
+              <Rss className="h-16 w-16" />
+              <h2 className="text-xl font-semibold">No Articles Found</h2>
+              <p className="max-w-md">
+                Your feed is empty, or no articles matched your filter. Try loading a new feed or clearing your filter.
+              </p>
+            </div>
+          )}
+        </>
+        ) : <SkeletonGrid /> }
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground">
         <div className="container mx-auto">
