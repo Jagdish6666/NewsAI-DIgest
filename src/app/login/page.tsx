@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,12 +23,24 @@ export default function LoginPage() {
     setIsClient(true);
   }, []);
 
+  const passwordValidation = useMemo(() => {
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+    const isValid = hasMinLength && hasUppercase && hasSymbol;
+    return { hasMinLength, hasUppercase, hasSymbol, isValid };
+  }, [password]);
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (!passwordValidation.isValid) {
+      let errorMessages = [];
+      if (!passwordValidation.hasMinLength) errorMessages.push("at least 6 characters");
+      if (!passwordValidation.hasUppercase) errorMessages.push("an uppercase letter");
+      if (!passwordValidation.hasSymbol) errorMessages.push("a symbol");
+      setError(`Password must contain ${errorMessages.join(', ')}.`);
       return;
     }
 
@@ -69,6 +82,13 @@ export default function LoginPage() {
       </Card>
   )
 
+  const ValidationCheck = ({ isValid, text }: { isValid: boolean, text: string }) => (
+    <div className={`flex items-center gap-2 text-sm ${isValid ? 'text-green-500' : 'text-muted-foreground'}`}>
+      {isValid ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+      <span>{text}</span>
+    </div>
+  );
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       {!isClient ? <AuthFormSkeleton /> : (
@@ -103,8 +123,17 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+
+              {password.length > 0 && (
+                 <div className="space-y-1.5 pt-2">
+                    <ValidationCheck isValid={passwordValidation.hasMinLength} text="At least 6 characters" />
+                    <ValidationCheck isValid={passwordValidation.hasUppercase} text="Contains an uppercase letter" />
+                    <ValidationCheck isValid={passwordValidation.hasSymbol} text="Contains a symbol (!@#$...)" />
+                </div>
+              )}
+
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={!passwordValidation.isValid}>
                 Sign In
               </Button>
             </form>
