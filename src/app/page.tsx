@@ -9,6 +9,8 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Rss } from 'lucide-react';
 import type { PresetFeed } from '@/components/PresetFeeds';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const PRESET_FEEDS: PresetFeed[] = [
   { name: 'Hacker News', url: 'https://news.ycombinator.com/rss' },
@@ -29,6 +31,22 @@ export default function Home() {
   const [summaryLength, setSummaryLength] = useState<SummaryLength>('medium');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    setIsClient(true);
+    if (!loading) {
+      if (user) {
+        handleLoadFeed(DEFAULT_FEED_URL);
+      } else {
+        router.push('/login');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading, router]);
+
 
   const handleLoadFeed = async (urlToLoad: string) => {
     if (!urlToLoad) {
@@ -69,12 +87,6 @@ export default function Home() {
     handleLoadFeed(url);
   };
 
-  useEffect(() => {
-    setIsClient(true);
-    handleLoadFeed(DEFAULT_FEED_URL);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const filteredArticles = useMemo(() => {
     if (!filterQuery) {
       return articles;
@@ -86,7 +98,7 @@ export default function Home() {
   
   const SkeletonGrid = () => (
     <div className="container mx-auto grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 9 }).map((_, i) => (
         <div key={i} className="flex flex-col space-y-3 rounded-lg border bg-card p-6">
           <Skeleton className="h-5 w-4/5" />
           <Skeleton className="h-3 w-1/2" />
@@ -99,6 +111,22 @@ export default function Home() {
       ))}
     </div>
   );
+
+  if (loading || !user) {
+    return (
+       <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="flex-grow">
+          <SkeletonGrid />
+        </main>
+         <footer className="py-6 text-center text-sm text-muted-foreground">
+          <div className="container mx-auto">
+            Built with Next.js and Genkit.
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
