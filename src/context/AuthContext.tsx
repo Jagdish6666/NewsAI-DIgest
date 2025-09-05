@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, User } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, User, getAuth } from 'firebase/auth';
+import { app, googleProvider } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -27,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
   
   const signInWithGoogle = async () => {
     setLoading(true);
@@ -70,9 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     try {
-      // Since we are mocking auth, we just clear the user
+      await firebaseSignOut(auth);
       setUser(null);
-      // In a real app, you would use firebaseSignOut(auth);
       router.push('/login');
     } catch (error)
     {
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
