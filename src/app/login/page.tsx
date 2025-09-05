@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/icons";
-import { Chrome } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LoginPage() {
@@ -17,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
-  const { signInWithGoogle, signInWithEmail } = useAuth();
+  const { signInWithEmail } = useAuth();
 
   useEffect(() => {
     setIsClient(true);
@@ -28,16 +27,6 @@ export default function LoginPage() {
     setError(null);
     try {
       await signInWithEmail(email, password);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setError(null);
-    try {
-      await signInWithGoogle();
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -65,15 +54,6 @@ export default function LoginPage() {
               </div>
               <Skeleton className="h-10 w-full" />
             </div>
-             <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-             <Skeleton className="h-10 w-full" />
         </CardContent>
          <CardFooter>
             <p className="text-xs text-muted-foreground text-center w-full">
@@ -122,18 +102,6 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </form>
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-              <Chrome className="mr-2 h-4 w-4" />
-              Sign in with Google
-            </Button>
           </CardContent>
           <CardFooter>
               <p className="text-xs text-muted-foreground text-center w-full">
